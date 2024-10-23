@@ -27,5 +27,6 @@ import CanvasDrawer from '@/components/CanvasDrawer.vue'
 
 #canvas {
   flex: 1;
+  max-width: clamp(300px, 100%, 100%);
 }
 </style>

@@ -1,76 +1,41 @@
 <template>
-  <div id="sidebar" ref="sidebar">
+  <div id="canvasContainer" ref="canvasContainer">
     <canvas ref="canvas" width="300" height="300" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { Drawer } from './Canvas'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
-const sidebar = ref<HTMLCanvasElement | null>(null)
-
-function resize() {
-  if (!canvas.value) return
-  if (!sidebar.value) return
-
-  canvas.value.width = sidebar.value.parentElement?.clientWidth as number
-  canvas.value.height = sidebar.value.parentElement?.clientHeight as number
-}
-
-interface Point {
-  x: number
-  y: number
-}
-
-function drawLine(ctx: CanvasRenderingContext2D, start: Point, end: Point): void {
-  ctx.beginPath()
-  ctx.moveTo(start.x, start.y)
-  ctx.lineTo(end.x, end.y)
-  ctx.stroke()
-}
-
-function drawHorizontalAxis(ctx: CanvasRenderingContext2D): void {
-  drawLine(ctx, { x: -width / 2, y: 0 }, { x: width / 2, y: 0 })
-}
-
-function drawVerticalAxis(ctx: CanvasRenderingContext2D): void {
-  drawLine(ctx, { x: -width / 2, y: 0 }, { x: width / 2, y: 0 })
-}
-
-function draw(): void {
-  // draw line from center to top
-
-  if (!canvas.value) return
-
-  let ctx = canvas.value.getContext('2d')
-  if (!ctx) return
-
-  ctx.translate(canvas.value.width / 2, canvas.value.height / 2)
-
-  // #### ///
-
-  drawHorizontalAxis(ctx)
-  drawVerticalAxis(ctx)
-}
+const canvasContainer = ref<HTMLCanvasElement | null>(null)
+const drawer = new Drawer()
 
 function initEventListeners(): void {
-  window.addEventListener('resize', () => {
-    resize()
-    draw()
-  })
+  window.addEventListener('resize', resize)
 }
 
-function init() {
-  if (!canvas.value) return
-  resize()
+function resize() {
+  if (!canvasContainer.value) return
+
+  let width = canvasContainer.value!.clientWidth
+  let height = canvasContainer.value!.clientHeight
+
+  drawer.resize(width, height)
 }
 
 onMounted(() => {
+  drawer.init(canvas.value!)
+  drawer.draw()
+  resize()
   initEventListeners()
-  init()
-  draw()
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+#canvasContainer {
+  width: 100%;
+  height: 100%;
+}
+</style>
